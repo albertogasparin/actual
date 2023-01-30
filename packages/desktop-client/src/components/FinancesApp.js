@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
@@ -28,7 +28,7 @@ import Cog from 'loot-design/src/svg/v1/Cog';
 import PiggyBank from 'loot-design/src/svg/v1/PiggyBank';
 import Wallet from 'loot-design/src/svg/v1/Wallet';
 
-import { isMobile } from '../util';
+import { useViewportWidth, VWIDTHS } from '../ResponsiveProvider';
 import { getLocationState, makeLocationState } from '../util/location-state';
 
 import Account from './accounts/Account';
@@ -200,55 +200,47 @@ function MobileNavTabs() {
   );
 }
 
-class FinancesApp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { isMobile: isMobile() };
-    this.history = createBrowserHistory();
+function FinancesApp(props) {
+  const isWide = useViewportWidth() === VWIDTHS.WIDE;
+  const patchedHistory = createBrowserHistory();
 
-    let oldPush = this.history.push;
-    this.history.push = (to, state) => {
+  useEffect(() => {
+    let oldPush = patchedHistory.push;
+    patchedHistory.push = (to, state) => {
       let newState = makeLocationState(to.state || state);
       if (typeof to === 'object') {
-        return oldPush.call(this.history, { ...to, state: newState });
+        return oldPush.call(patchedHistory, { ...to, state: newState });
       } else {
-        return oldPush.call(this.history, to, newState);
+        return oldPush.call(patchedHistory, to, newState);
       }
     };
 
     // I'm not sure if this is the best approach but we need this to
     // globally. We could instead move various workflows inside global
     // React components, but that's for another day.
-    window.__history = this.history;
+    window.__history = patchedHistory;
 
     undo.setUndoState('url', window.location.href);
 
-    this.cleanup = this.history.listen(location => {
+    const cleanup = patchedHistory.listen(location => {
       undo.setUndoState('url', window.location.href);
     });
 
-    this.handleWindowResize = this.handleWindowResize.bind(this);
-  }
+    return cleanup;
+  }, [patchedHistory]);
 
-  handleWindowResize() {
-    this.setState({
-      isMobile: isMobile(),
-      windowWidth: window.innerWidth,
-    });
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     // TODO: quick hack fix for showing the demo
-    if (this.history.location.pathname === '/subscribe') {
-      this.history.push('/');
+    if (patchedHistory.location.pathname === '/subscribe') {
+      patchedHistory.push('/');
     }
 
     // Get the accounts and check if any exist. If there are no
     // accounts, we want to redirect the user to the All Accounts
     // screen which will prompt them to add an account
-    this.props.getAccounts().then(accounts => {
+    props.getAccounts().then(accounts => {
       if (accounts.length === 0) {
-        this.history.push('/accounts');
+        patchedHistory.push('/accounts');
       }
     });
 
@@ -258,86 +250,77 @@ class FinancesApp extends React.Component {
     // Wait a little bit to make sure the sync button will get the
     // sync start event. This can be improved later.
     setTimeout(async () => {
-      await this.props.sync();
+      await props.sync();
 
       // Check for upgrade notifications. We do this after syncing
       // because these states are synced across devices, so they will
       // only see it once for this file
       checkForUpgradeNotifications(
-        this.props.addNotification,
-        this.props.resetSync,
-        this.history,
+        props.addNotification,
+        props.resetSync,
+        patchedHistory,
       );
     }, 100);
+  }, []);
 
-    window.addEventListener('resize', this.handleWindowResize);
-  }
+  return (
+    <Router history={patchedHistory}>
+      <CompatRouter>
+        <View style={{ height: '100%', backgroundColor: colors.n10 }}>
+          <GlobalKeys />
 
-  componentWillUnmount() {
-    this.cleanup();
-    window.removeEventListener('resize', this.handleWindowResize);
-  }
+          <View style={{ flexDirection: 'row', flex: 1 }}>
+            {isWide && <FloatableSidebar />}
 
-  render() {
-    return (
-      <Router history={this.history}>
-        <CompatRouter>
-          <View style={{ height: '100%', backgroundColor: colors.n10 }}>
-            <GlobalKeys />
-
-            <View style={{ flexDirection: 'row', flex: 1 }}>
-              {!this.state.isMobile && <FloatableSidebar />}
-
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                position: 'relative',
+                width: '100%',
+              }}
+            >
+              {isWide && (
+                <Titlebar
+                  style={{
+                    WebkitAppRegion: 'drag',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                  }}
+                />
+              )}
               <div
                 style={{
                   flex: 1,
                   display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden',
+                  overflow: 'auto',
                   position: 'relative',
-                  width: '100%',
                 }}
               >
-                {!this.state.isMobile && (
-                  <Titlebar
-                    style={{
-                      WebkitAppRegion: 'drag',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      zIndex: 1000,
-                    }}
-                  />
-                )}
-                <div
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    overflow: 'auto',
-                    position: 'relative',
-                  }}
-                >
-                  <Notifications />
-                  <BankSyncStatus />
-                  <StackedRoutes isMobile={this.state.isMobile} />
-                  {/*window.Actual.IS_DEV && <Debugger />*/}
-                  <Modals history={this.history} />
-                </div>
-                {this.state.isMobile && (
-                  <Switch>
-                    <Route path="/budget" component={MobileNavTabs} />
-                    <Route path="/accounts" component={MobileNavTabs} />
-                    <Route path="/settings" component={MobileNavTabs} />
-                  </Switch>
-                )}
+                <Notifications />
+                <BankSyncStatus />
+                <StackedRoutes isMobile={!isWide} />
+                {/*window.Actual.IS_DEV && <Debugger />*/}
+                <Modals history={patchedHistory} />
               </div>
-            </View>
+              {!isWide && (
+                <Switch>
+                  <Route path="/budget" component={MobileNavTabs} />
+                  <Route path="/accounts" component={MobileNavTabs} />
+                  <Route path="/settings" component={MobileNavTabs} />
+                </Switch>
+              )}
+            </div>
           </View>
-        </CompatRouter>
-      </Router>
-    );
-  }
+        </View>
+      </CompatRouter>
+    </Router>
+  );
 }
 
 function FinancesAppWithContext(props) {

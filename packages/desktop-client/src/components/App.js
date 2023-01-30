@@ -11,7 +11,11 @@ import {
 import { styles, hasHiddenScrollbars } from 'loot-design/src/style';
 
 import installPolyfills from '../polyfills';
+<<<<<<< HEAD
 
+=======
+import { ResponsiveProvider } from '../ResponsiveProvider';
+>>>>>>> 5d3b560 (WIP: responsive context)
 import AppBackground from './AppBackground';
 import FatalError from './FatalError';
 import FinancesApp from './FinancesApp';
@@ -90,42 +94,44 @@ class App extends React.Component {
     const { fatalError, initializing, hiddenScrollbars } = this.state;
 
     return (
-      <div
-        key={hiddenScrollbars ? 'hidden-scrollbars' : 'scrollbars'}
-        {...css([
-          {
-            height: '100%',
-            backgroundColor: '#E8ECF0',
-            overflow: 'hidden',
-          },
-          styles.lightScrollbar,
-        ])}
-      >
-        {fatalError ? (
-          <React.Fragment>
-            <AppBackground />
-            <FatalError error={fatalError} buttonText="Restart app" />
-          </React.Fragment>
-        ) : initializing ? (
-          <AppBackground
-            initializing={initializing}
-            loadingText={loadingText}
-          />
-        ) : budgetId ? (
-          <FinancesApp />
-        ) : (
-          <React.Fragment>
+      <ResponsiveProvider>
+        <div
+          key={hiddenScrollbars ? 'hidden-scrollbars' : 'scrollbars'}
+          {...css([
+            {
+              height: '100%',
+              backgroundColor: '#E8ECF0',
+              overflow: 'hidden'
+            },
+            styles.lightScrollbar
+          ])}
+        >
+          {fatalError ? (
+            <React.Fragment>
+              <AppBackground />
+              <FatalError error={fatalError} buttonText="Restart app" />
+            </React.Fragment>
+          ) : initializing ? (
             <AppBackground
               initializing={initializing}
               loadingText={loadingText}
             />
-            <ManagementApp />
-          </React.Fragment>
-        )}
+          ) : budgetId ? (
+            <FinancesApp />
+          ) : (
+            <React.Fragment>
+              <AppBackground
+                initializing={initializing}
+                loadingText={loadingText}
+              />
+              <ManagementApp />
+            </React.Fragment>
+          )}
 
-        <UpdateNotification />
-        <MobileWebMessage />
-      </div>
+          <UpdateNotification />
+          <MobileWebMessage />
+        </div>
+      </ResponsiveProvider>
     );
   }
 }

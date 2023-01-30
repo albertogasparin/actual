@@ -12,7 +12,8 @@ import { colors } from 'loot-design/src/style';
 import tokens from 'loot-design/src/tokens';
 import { withThemeColor } from 'loot-design/src/util/withThemeColor';
 
-import { isMobile } from '../../util';
+import useServerVersion from '../../hooks/useServerVersion';
+import { useViewportWidth, VWIDTHS } from '../../ResponsiveProvider';
 import { Page } from '../Page';
 import { useServerVersion } from '../ServerContext';
 
@@ -64,11 +65,13 @@ function Settings({
     loadPrefs();
     return () => unlisten();
   }, [loadPrefs]);
+  const vWidth = useViewportWidth();
+  const isWide = vWidth === VWIDTHS.WIDE;
 
   return (
     <View
       style={{
-        marginInline: globalPrefs.floatingSidebar && !isMobile() ? 'auto' : 0,
+        marginInline: globalPrefs.floatingSidebar && isWide ? 'auto' : 0,
       }}
     >
       <Page title="Settings">

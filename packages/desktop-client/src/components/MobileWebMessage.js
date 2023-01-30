@@ -6,7 +6,7 @@ import { View, Text, Button } from 'loot-design/src/components/common';
 import { Checkbox } from 'loot-design/src/components/forms';
 import { colors, styles } from 'loot-design/src/style';
 
-import { isMobile } from '../util';
+import { useViewportWidth, VWIDTHS } from '../ResponsiveProvider';
 
 let buttonStyle = { border: 0, fontSize: 15, padding: '10px 13px' };
 
@@ -15,8 +15,10 @@ export default function MobileWebMessage() {
     return (state.prefs.local && state.prefs.local.hideMobileMessage) || true;
   });
 
+  const isWide = useViewportWidth() === VWIDTHS.WIDE;
+
   let [show, setShow] = useState(
-    isMobile() &&
+    !isWide &&
       !hideMobileMessagePref &&
       !document.cookie.match(/hideMobileMessage=true/),
   );
