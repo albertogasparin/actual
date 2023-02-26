@@ -11,15 +11,16 @@ module.exports = {
         ignoreRestSiblings: true,
       },
     ],
-    'no-loop-func': 'off',
-    'no-restricted-globals': 'off',
 
     // TODO: re-enable these rules
-    'import/no-anonymous-default-export': 'off',
-    'react/destructuring-assignment': 'off',
-    'react-hooks/rules-of-hooks': 'off',
+    'no-loop-func': 'off',
+    'no-restricted-globals': 'off',
     'react-hooks/exhaustive-deps': 'off',
 
+    'import/no-anonymous-default-export': [
+      'error',
+      { allowArrowFunction: true, allowObject: true },
+    ],
     'import/no-useless-path-segments': 'error',
     'import/order': [
       'error',
