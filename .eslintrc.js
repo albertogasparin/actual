@@ -6,7 +6,7 @@ module.exports = {
     'no-unused-vars': [
       'error',
       {
-        args: 'none',
+        args: 'none', // TODO: remove this line
         varsIgnorePattern: '^_',
         ignoreRestSiblings: true,
       },
@@ -14,11 +14,10 @@ module.exports = {
     'no-loop-func': 'off',
     'no-restricted-globals': 'off',
 
-    // TODO: re-enable these rules
-    'import/no-anonymous-default-export': 'off',
-    'react/destructuring-assignment': 'off',
+    // TODO: re-enable this rule
     'react-hooks/exhaustive-deps': 'off',
 
+    'import/no-anonymous-default-export': ['error', { allowObject: true }],
     'import/no-useless-path-segments': 'error',
     'import/order': [
       'error',
