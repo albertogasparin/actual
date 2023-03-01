@@ -1,5 +1,3 @@
-// https://pegjs.org
-
 expr
   = percent: percent _ of _ category: $([^\n] *)
     { return { type: 'percentage', percent: +percent, category } }

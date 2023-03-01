@@ -10,7 +10,7 @@ import { amountToInteger, integerToAmount } from '../../shared/util';
 import * as db from '../db';
 
 import { setBudget, getSheetValue } from './actions';
-import { parse } from './goal-template.pegjs';
+// import { parse } from './goal-template.pegjs';
 
 export function applyTemplate({ month }) {
   return processTemplate(month, false);
@@ -114,6 +114,7 @@ async function getCategoryTemplates() {
       if (!line.toLowerCase().startsWith(TEMPLATE_PREFIX)) continue;
       let expression = line.slice(TEMPLATE_PREFIX.length);
       try {
+        function parse() {}
         let parsed = parse(expression);
         template_lines.push(parsed);
       } catch (e) {
