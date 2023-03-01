@@ -17,7 +17,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.electron.js', '.js', '.json'],
-    alias: {
+    fallback: {
       'perf-deets': require.resolve('perf-deets/noop'),
     },
   },

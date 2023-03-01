@@ -15,14 +15,20 @@ module.exports = {
   },
   resolve: {
     extensions: ['.web.js', '.js', '.json'],
-    alias: {
-      fs: 'memfs',
-      path: 'path-browserify',
-
+    fallback: {
+      fs: require.resolve('memfs'),
+      path: require.resolve('path-browserify'),
       'perf-deets':
         process.env.NODE_ENV === 'development' || process.env.PERF_BUILD
           ? 'perf-deets'
           : require.resolve('perf-deets/noop'),
+      stream: false,
+      zlib: false,
+      util: 'util/',
+      assert: false,
+      crypto: false,
+      url: false,
+      process: false,
     },
   },
   resolveLoader: {
@@ -48,7 +54,7 @@ module.exports = {
     ],
   },
   optimization: {
-    namedChunks: true,
+    chunkIds: 'named',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -70,9 +76,9 @@ module.exports = {
       resourceRegExp: /worker_threads|original-fs/,
     }),
   ],
-  node: {
-    dgram: 'empty',
-    net: 'empty',
-    tls: 'empty',
-  },
+  // node: {
+  //   dgram: 'empty',
+  //   net: 'empty',
+  //   tls: 'empty',
+  // },
 };
