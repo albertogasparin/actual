@@ -178,7 +178,7 @@ export function SchedulesTable({
         filterIncludes(dateStr)
       );
     });
-  }, [schedules, filter, statuses]);
+  }, [schedules, filter, statuses, accounts, payees, dateFormat]);
 
   let items = useMemo(() => {
     if (!allowCompleted) {

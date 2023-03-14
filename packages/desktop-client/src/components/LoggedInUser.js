@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 
-import * as actions from 'loot-core/src/client/actions';
+import {
+  getUserData,
+  signOut,
+  closeBudget,
+} from 'loot-core/src/client/actions';
 import {
   View,
   Text,
@@ -14,28 +17,19 @@ import { colors } from 'loot-design/src/style';
 
 import { useServerURL } from './ServerContext';
 
-function LoggedInUser({
-  files,
-  budgetId,
-  userData,
-  getUserData,
-  setAppState,
-  signOut,
-  pushModal,
-  closeBudget,
-  style,
-  color,
-}) {
-  let [loading, setLoading] = useState(true);
-  let [menuOpen, setMenuOpen] = useState(false);
+export default function LoggedInUser({ style }) {
+  const dispatch = useDispatch();
+  const userData = useSelector(state => state.user.data);
+  const loading = !userData;
+  const [menuOpen, setMenuOpen] = useState(false);
   const serverUrl = useServerURL();
 
   useEffect(() => {
-    getUserData().then(() => setLoading(false));
-  }, []);
+    dispatch(getUserData());
+  }, [dispatch]);
 
   async function onChangePassword() {
-    await closeBudget();
+    await dispatch(closeBudget());
     window.__history.push('/change-password');
   }
 
@@ -44,10 +38,10 @@ function LoggedInUser({
 
     switch (type) {
       case 'change-password':
-        onChangePassword();
+        dispatch(onChangePassword());
         break;
       case 'sign-out':
-        signOut();
+        dispatch(signOut());
         break;
       default:
     }
@@ -55,12 +49,12 @@ function LoggedInUser({
 
   async function onClick() {
     if (!serverUrl) {
-      await closeBudget();
+      await dispatch(closeBudget());
       window.__history.push('/config-server');
     } else if (userData) {
       setMenuOpen(true);
     } else {
-      await closeBudget();
+      await dispatch(closeBudget());
       window.__history.push('/login');
     }
   }
@@ -73,12 +67,12 @@ function LoggedInUser({
     );
   } else if (userData) {
     if (userData.offline) {
-      return <View style={[{ color }, style]}>Offline</View>;
+      return <View style={style}>Offline</View>;
     }
 
     return (
       <View style={[{ flexDirection: 'row', alignItems: 'center' }, style]}>
-        <Button bare onClick={onClick} style={{ color }}>
+        <Button bare onClick={onClick}>
           {serverUrl ? 'Server' : 'No server'}
         </Button>
 
@@ -101,18 +95,9 @@ function LoggedInUser({
     );
   } else {
     return (
-      <Button bare onClick={onClick} style={[{ color }, style]}>
+      <Button bare onClick={onClick} style={style}>
         Not logged in
       </Button>
     );
   }
 }
-
-export default connect(
-  state => ({
-    userData: state.user.data,
-    files: state.budgets.allFiles,
-    budgetId: state.prefs.local && state.prefs.local.id,
-  }),
-  actions,
-)(withRouter(LoggedInUser));

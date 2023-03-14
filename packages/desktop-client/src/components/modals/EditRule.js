@@ -250,7 +250,7 @@ function ScheduleDescription({ id }) {
     return state.prefs.local.dateFormat || 'MM/dd/yyyy';
   });
   let scheduleData = useSchedules({
-    transform: useCallback(q => q.filter({ id }), []),
+    transform: useCallback(q => q.filter({ id }), [id]),
   });
 
   if (scheduleData == null) {
