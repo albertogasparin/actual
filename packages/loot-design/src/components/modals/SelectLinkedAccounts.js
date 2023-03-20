@@ -171,14 +171,13 @@ function TableRow({
           linkedAccount?.name || chosenAccount?.name
         )}
       </Field>
-      <Field width="flex">
+      <Field width="flex" contentStyle={{ alignSelf: 'flex-end' }}>
         {!linkedAccount &&
           (chosenAccount ? (
             <Button
               onClick={() => {
                 onSetLinkedAccount(externalAccount, null);
               }}
-              style={{ float: 'right' }}
             >
               Remove bank-sync
             </Button>
@@ -188,7 +187,6 @@ function TableRow({
               onClick={() => {
                 setFocusedField('account');
               }}
-              style={{ float: 'right' }}
             >
               Setup bank-sync
             </Button>
