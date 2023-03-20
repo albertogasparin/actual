@@ -72,8 +72,8 @@ export default function SelectLinkedAccounts({
           >
             <TableHeader
               headers={[
-                { name: 'External account name', width: 200 },
-                { name: 'Local account name', width: 'flex' },
+                { name: 'External account', width: 200 },
+                { name: 'Local account', width: 'flex' },
               ]}
             />
 
