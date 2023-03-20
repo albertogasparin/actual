@@ -74,7 +74,6 @@ export default function SelectLinkedAccounts({
               headers={[
                 { name: 'External account name', width: 200 },
                 { name: 'Local account name', width: 'flex' },
-                { name: 'Actions', width: 'flex' },
               ]}
             />
 
